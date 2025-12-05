@@ -1,0 +1,59 @@
+name: CI - Unit Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache Maven local repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run unit tests (association-core-kit)
+        working-directory: ./association-core-kit
+        run: |
+          # minimal: run tests and generate surefire reports (and site/jacoco if configured)
+          mvn -B -DskipTests=false test
+
+      - name: Try to generate JaCoCo report (best-effort, won't break run if not present)
+        working-directory: ./association-core-kit
+        run: |
+          # this is best-effort: if jacoco.exec is present and plugin can run, site/jacoco will be created.
+          mvn -B org.jacoco:jacoco-maven-plugin:report || true
+
+      - name: Upload test reports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: association-core-kit-test-reports
+          path: |
+            association-core-kit/target/surefire-reports/**
+            association-core-kit/target/failsafe-reports/**
+
+      - name: Upload jacoco/site if present
+        uses: actions/upload-artifact@v4
+        with:
+          name: association-core-kit-jacoco-site
+          path: association-core-kit/target/site/jacoco/**
+          if-no-files-found: ignore
