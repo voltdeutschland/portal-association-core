@@ -19,7 +19,7 @@ Add the module as a dependency in your project (Maven example):
 
 ```xml
 <dependency>
-  <groupId>de.volt-portal</groupId>
+  <groupId>org.volt-portal</groupId>
   <artifactId>association-core-kit</artifactId>
   <version>*</version>
 </dependency>

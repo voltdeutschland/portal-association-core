@@ -45,7 +45,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run unit tests (release gate)
-        working-directory: ./assembly-registration-kit
+        working-directory: ./association-core-kit
         run: |
           mvn -B -DskipTests=false test
 
@@ -60,10 +60,10 @@ jobs:
 
       - name: Build
         run: mvn clean package -DskipTests
-        working-directory: ./assembly-registration-kit
+        working-directory: ./association-core-kit
 
       - name: Publish to GitHub Packages
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: ./assembly-registration-kit
+        working-directory: ./association-core-kit
